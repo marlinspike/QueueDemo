@@ -16,8 +16,6 @@ public class App {
         IMessageReceiver receiver;
         String connectionString;
 
-        System.out.println( "Hello World!" );
-
         try{
             sendClient = new QueueClient(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
             receiver = ClientFactory.createMessageReceiverFromConnectionStringBuilder(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, "myq"), ReceiveMode.PEEKLOCK);
