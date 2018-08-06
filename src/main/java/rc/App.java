@@ -8,7 +8,8 @@ import java.time.Duration;
  */
 public class App {
     
-    static final String SAMPLE_CONNECTIONSTRING = "SB_SAMPLES_CONNECTIONSTRING";
+    static final String SAMPLE_CONNECTIONSTRING = "<SAMPLE_CONNECTIONSTRING>";
+    static final String QUEUE_NAME = "<QUEUE_NAME>";
 
     public static void main( String[] args ){
         QueueClient sendClient;
@@ -18,10 +19,10 @@ public class App {
         System.out.println( "Hello World!" );
 
         try{
-            sendClient = new QueueClient(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, "myq"), ReceiveMode.PEEKLOCK);
+            sendClient = new QueueClient(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
             receiver = ClientFactory.createMessageReceiverFromConnectionStringBuilder(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, "myq"), ReceiveMode.PEEKLOCK);
 
-            //sendMessage(sendClient);
+            sendMessage(sendClient);
             sendClient.close();
             receiveMessage(receiver);
             System.exit(0);
