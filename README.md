@@ -1,5 +1,5 @@
 # QueueDemo
-To Run: rc.App
+To Run: (using Maven) mvn exec:java -Dexec.mainClass="rc.App"
 
 What it does: Demonstrates adding a message on an Azure Service Bus Queue, and then reading it.
 
