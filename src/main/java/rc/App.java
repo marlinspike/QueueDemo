@@ -1,33 +1,47 @@
 package rc;
 import com.microsoft.azure.servicebus.*;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
 import java.time.Duration;
 /**
  * Hello world!
  *
  */
-public class App {
+public class App implements Runnable{
+    @Option(names = {"-c", "--connection"}, required = true, description = "Connection String for the Service Bus. Use either Primary or Secondary Connection String.")
+    private String CONNECTIONSTRING = "";
+    @Option(names = {"-q", "--queue"}, required = true, description = "Service Bus Queue Name.")
+    private String QUEUE_NAME = "";
+    @Option(names = { "-h", "--help" }, usageHelp = true,
+            description = "Parameters required: -q [Queue Name], [-c] Connection String.")
+    private boolean helpRequested = false;
+
+    public void run() {
     
-    static final String SAMPLE_CONNECTIONSTRING = "<SAMPLE_CONNECTIONSTRING>";
-    static final String QUEUE_NAME = "<QUEUE_NAME>";
+            QueueClient sendClient;
+            IMessageReceiver receiver;
+    
+            try{
+                sendClient = new QueueClient(new ConnectionStringBuilder(CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
+                receiver = ClientFactory.createMessageReceiverFromConnectionStringBuilder(new ConnectionStringBuilder(CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
+    
+                sendMessage(sendClient);
+                System.out.println("");
+                sendClient.close();
+                receiveMessage(receiver);
+                System.out.println("");
+                System.exit(0);
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
+    }
+
+    
 
     public static void main( String[] args ){
-        QueueClient sendClient;
-        IMessageReceiver receiver;
-        String connectionString;
-
-        try{
-            sendClient = new QueueClient(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
-            receiver = ClientFactory.createMessageReceiverFromConnectionStringBuilder(new ConnectionStringBuilder(SAMPLE_CONNECTIONSTRING, "myq"), ReceiveMode.PEEKLOCK);
-
-            sendMessage(sendClient);
-            sendClient.close();
-            receiveMessage(receiver);
-            System.exit(0);
-        }
-        catch(Exception e){
-            System.out.println(e);
-        }
+        CommandLine.run(new App(), args);
     }
 
 
@@ -40,6 +54,7 @@ public class App {
             try{
                 System.out.println("Sending Message...");
                 sendClient.send(message);
+                System.out.println("Sent Message: " + message.getLabel());
                 //endClient.send(message);
             }catch(Exception e){
                 System.out.println(e);
@@ -51,6 +66,7 @@ public class App {
             IMessage message = receiver.receive(Duration.ofSeconds(2));
             
             if (message != null){
+                System.out.println("Receiving Message...");
                 System.out.println("Got Message: " + message.getLabel());
                 receiver.complete(message.getLockToken());
             }else{
@@ -61,4 +77,5 @@ public class App {
             System.out.println(e);
         }
     }
+
 }
