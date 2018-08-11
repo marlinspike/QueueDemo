@@ -1,9 +1,13 @@
 # QueueDemo
-To Run: (using Maven) mvn exec:java -Dexec.mainClass="rc.App"
+To Run: (using Maven) mvn exec:java -Dexec.mainClass="rc.App" -Dexec.args="-q <QUEUE_NAME> -c <CONNECTION_STRING>"
+
+The command line parameters map as such:
+-q: The name of the Service Bus Queue
+-c: The Primary or Secondary Connection String URL
+
+For Help: mvn exec:java -Dexec.mainClass="rc.App" -Dexec.args="-h"
+
 
 What it does: Demonstrates adding a message on an Azure Service Bus Queue, and then reading it.
 
-Configuration Items: Within the App.java class, configure the two items below:
 
-  - SAMPLE_CONNECTIONSTRING: Connection string (either primary or secondary) from your Azure SB. Please safeguard your connection strings by not checking them in anywhere publicly.
-  - QUEUE_NAME: The name of the queue in your Azure SB
