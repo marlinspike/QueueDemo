@@ -3,7 +3,7 @@ To Run: (using Maven) mvn exec:java -Dexec.mainClass="rc.App" -Dexec.args="-q <Q
   
 The command line parameters map as such:  
 -q: The name of the Service Bus Queue  
--c: The Primary or Secondary Connection String URL  
+-c: The Primary or Secondary Connection String   
 
 For Help: mvn exec:java -Dexec.mainClass="rc.App" -Dexec.args="-h"  
   
