@@ -4,6 +4,13 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import java.time.Duration;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Hashtable;
+import java.util.Random;
+
 /**
  * Hello world!
  *
@@ -16,6 +23,8 @@ public class App implements Runnable{
     @Option(names = { "-h", "--help" }, usageHelp = true,
             description = "Parameters required: -q [Queue Name], [-c] Connection String.")
     private boolean helpRequested = false;
+    @Option(names = {"-m", "--message"}, required = false, description = "Message to send.")
+    private String messageToSend = "Hello World!";
 
     public void run() {
     
@@ -26,7 +35,7 @@ public class App implements Runnable{
                 sendClient = new QueueClient(new ConnectionStringBuilder(CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
                 receiver = ClientFactory.createMessageReceiverFromConnectionStringBuilder(new ConnectionStringBuilder(CONNECTIONSTRING, QUEUE_NAME), ReceiveMode.PEEKLOCK);
     
-                sendMessage(sendClient);
+                sendMessage(sendClient, messageToSend);
                 System.out.println("");
                 sendClient.close();
                 receiveMessage(receiver);
@@ -45,17 +54,18 @@ public class App implements Runnable{
     }
 
 
-    public static void sendMessage(QueueClient sendClient){
-        Message message = new Message("Hello World!");
+    public static void sendMessage(QueueClient sendClient, String messageToSend){
+        Message message = new Message();
+
         message.setContentType("text");
-            message.setLabel("Hello World!");
+            message.setBody(messageToSend.getBytes());
             message.setMessageId("1");
             //message.setTimeToLive(Duration.ofMinutes(20));
             try{
                 System.out.println("Sending Message...");
                 sendClient.send(message);
-                System.out.println("Sent Message: " + message.getLabel());
-                //endClient.send(message);
+
+                System.out.println("Sent Message: " + new String(message.getBody(), "UTF-8"));
             }catch(Exception e){
                 System.out.println(e);
             }
@@ -63,11 +73,13 @@ public class App implements Runnable{
 
     public static void receiveMessage(IMessageReceiver receiver){
         try{  
-            IMessage message = receiver.receive(Duration.ofSeconds(2));
-            
+            IMessage  message = receiver.receive(Duration.ofSeconds(2));
+            byte[] body = message.getBody();
+            String msg = new String(body, "UTF-8");
+
             if (message != null){
-                System.out.println("Receiving Message...");
-                System.out.println("Got Message: " + message.getLabel());
+                System.out.println("Receiving Message... [" + body.length + "] bytes");
+                System.out.println("Translating Message: " + new String(body, "UTF-8"));
                 receiver.complete(message.getLockToken());
             }else{
                 System.out.println("No messages!");
